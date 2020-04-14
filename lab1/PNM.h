@@ -10,6 +10,8 @@ using namespace std;
 class PNM
 {
 public:
+	bool error = false;
+	string error_type;
 	void input(const string &file);
 	void negative(const string& filepnm);
 	void output(const string& filepnm);
