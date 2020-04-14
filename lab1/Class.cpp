@@ -1,13 +1,19 @@
 #include "PNM.h"
 #include "RGB.h"
+#include <fstream>
 
 void PNM::input(const string& file)
 {
 	ifstream F(file.c_str(), ios::binary);
-	if (!F)
+	if (!F.good())
 	{
-		cout << "ERROR: File not found.";
+		error = true;
+		error_type = "File isn't reading";
 		return;
+	}
+	if (!((file.substr(file.length() - 4, 4) == ".pnm") || (file.substr(file.length() - 4, 4) == ".pgm")))
+	{
+		error = true;
 	}
 	F >> format >> width >> height >> deep;
 	F.seekg(1, std::ios::cur);
@@ -16,6 +22,13 @@ void PNM::input(const string& file)
 		RGBMass.resize(height);
 		for (int i = 0; i < height; i++)
 		{
+			unsigned char* weight = new unsigned char[24 * width * height];
+			if (weight == NULL)
+			{
+				error = true;
+				error_type = "Out of memory";
+				return;
+			}
 			RGBMass[i].resize(width);
 			for (int j = 0; j < width; j++)
 			{
@@ -30,11 +43,18 @@ void PNM::input(const string& file)
 			}
 		}
 	}
-	else
+	else if (format == "P5")
 	{
 		Mass.resize(height);
 		for (int i = 0; i < height; i++)
 		{
+			unsigned char* weight = new unsigned char[8 * width * height];
+			if (weight == NULL)
+			{
+				error = true;
+				error_type = "Out of memory";
+				return;
+			}
 			Mass[i].resize(width);
 			for (int j = 0; j < width; j++)
 			{
@@ -43,6 +63,10 @@ void PNM::input(const string& file)
 				Mass[i][j] = pixel;
 			}
 		}
+	}
+	else
+	{
+		error = true;
 	}
 }
 
@@ -224,6 +248,12 @@ void PNM::CounterClockwiseRotate(const string& filepnm)
 void PNM::output(const string& filepnm)
 {
 	ofstream File(filepnm, ios::binary);
+	if (!File.is_open())
+	{
+		error = true;
+		error_type = "File isn't writing";
+		return;
+	}
 	File << format << endl << width << ' ' << height << endl << deep << endl;
 	if (format == "P6")
 	{
@@ -246,6 +276,12 @@ void PNM::output(const string& filepnm)
 				File.put(Mass[i][j]);
 			}
 		}
+	}
+	if (File.fail())
+	{
+		error = true;
+		error_type = "File isn't writing";
+		return;
 	}
 	File.close();
 }
