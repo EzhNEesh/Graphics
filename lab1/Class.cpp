@@ -22,13 +22,6 @@ void PNM::input(const string& file)
 		RGBMass.resize(height);
 		for (int i = 0; i < height; i++)
 		{
-			unsigned char* weight = new unsigned char[24 * width * height];
-			if (weight == NULL)
-			{
-				error = true;
-				error_type = "Out of memory";
-				return;
-			}
 			RGBMass[i].resize(width);
 			for (int j = 0; j < width; j++)
 			{
@@ -42,19 +35,18 @@ void PNM::input(const string& file)
 				RGBMass[i][j].B = blue;
 			}
 		}
+		if (RGBMass.empty())
+		{
+			error = true;
+			error_type = "Out of memory";
+			return;
+		}
 	}
 	else if (format == "P5")
 	{
 		Mass.resize(height);
 		for (int i = 0; i < height; i++)
 		{
-			unsigned char* weight = new unsigned char[8 * width * height];
-			if (weight == NULL)
-			{
-				error = true;
-				error_type = "Out of memory";
-				return;
-			}
 			Mass[i].resize(width);
 			for (int j = 0; j < width; j++)
 			{
@@ -63,6 +55,12 @@ void PNM::input(const string& file)
 				Mass[i][j] = pixel;
 			}
 		}
+		if (Mass.empty())
+			{
+				error = true;
+				error_type = "Out of memory";
+				return;
+			}
 	}
 	else
 	{
